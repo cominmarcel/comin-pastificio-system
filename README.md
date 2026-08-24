@@ -57,9 +57,10 @@ The project combines operational management with data analytics, replacing disco
 - [x] Initial Django migrations applied
 - [x] Administration interface validated
 - [x] Git repository and GitHub integration
-- [ ] Business modules
+- [x] Catalog foundation: items, categories and units
+- [x] Initial automated model tests
+- [ ] Remaining business modules
 - [ ] Custom user interface
-- [ ] Automated tests
 - [ ] Analytical layer
 - [ ] Dashboard
 

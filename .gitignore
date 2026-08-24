@@ -1,0 +1,21 @@
+# Senhas e configurações privadas
+.env
+
+# Arquivos temporários do Python
+__pycache__/
+*.py[cod]
+
+# Banco local provisório do Django
+db.sqlite3
+
+# Ambientes virtuais
+.venv/
+venv/
+
+# Arquivos do editor e do sistema operacional
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

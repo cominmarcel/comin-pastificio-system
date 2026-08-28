@@ -1,6 +1,9 @@
 from decimal import Decimal
 
-from django.core.validators import MinValueValidator
+from django.core.validators import (
+    MinValueValidator,
+    RegexValidator,
+)
 from django.db import models
 
 from core.models import TimeStampedModel
@@ -102,6 +105,24 @@ class Item(TimeStampedModel):
         null=True,
         blank=True,
         verbose_name='SKU',
+    )
+    gtin = models.CharField(
+        'GTIN / código de barras',
+        max_length=14,
+        unique=True,
+        null=True,
+        blank=True,
+        validators=[
+            RegexValidator(
+                regex=r'^(?:\d{8}|\d{12,14})$',
+                message=(
+                    'Informe um GTIN com 8, 12, 13 ou 14 dígitos.'
+                ),
+            ),
+        ],
+        help_text=(
+            'Número impresso abaixo do código de barras da embalagem.'
+        ),
     )
     item_type = models.CharField(
         max_length=30,

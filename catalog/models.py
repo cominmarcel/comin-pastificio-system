@@ -81,7 +81,7 @@ class ItemCategory(TimeStampedModel):
     def __str__(self):
         return self.name
 
-    
+
 class ItemType(models.TextChoices):
     INGREDIENT = 'ingredient', 'Ingrediente ou insumo'
     PACKAGING = 'packaging', 'Embalagem'
@@ -93,6 +93,28 @@ class ItemType(models.TextChoices):
     SERVICE = 'service', 'Serviço'
     OTHER = 'other', 'Outro'
 
+class Brand(TimeStampedModel):
+    name = models.CharField(
+        'nome',
+        max_length=150,
+        unique=True,
+    )
+    notes = models.TextField(
+        'observações',
+        blank=True,
+    )
+    is_active = models.BooleanField(
+        'ativa',
+        default=True,
+    )
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'marca'
+        verbose_name_plural = 'marcas'
+
+    def __str__(self):
+        return self.name
 
 class Item(TimeStampedModel):
     name = models.CharField(
@@ -137,6 +159,14 @@ class Item(TimeStampedModel):
         null=True,
         blank=True,
         verbose_name='categoria',
+    )
+    brand = models.ForeignKey(
+        Brand,
+        verbose_name='marca',
+        related_name='items',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
     )
     base_unit = models.ForeignKey(
         UnitOfMeasure,
@@ -215,6 +245,12 @@ class Item(TimeStampedModel):
         ]
 
     def __str__(self):
+        label = self.name
+
+        if self.brand:
+            label = f'{label} — {self.brand.name}'
+
         if self.sku:
-            return f'{self.name} [{self.sku}]'
-        return self.name
+            label = f'{label} [{self.sku}]'
+
+        return label

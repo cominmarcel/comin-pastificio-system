@@ -90,8 +90,9 @@ class PurchaseChannel(models.TextChoices):
 
 
 class PurchaseDocumentType(models.TextChoices):
-    INVOICE = 'invoice', 'Nota fiscal'
-    FISCAL_RECEIPT = 'fiscal_receipt', 'Cupom fiscal'
+    INVOICE = 'invoice', 'NF-e ou nota fiscal'
+    NFCE = 'nfce', 'NFC-e (modelo 65)'
+    FISCAL_RECEIPT = 'fiscal_receipt', 'Cupom fiscal (ECF)'
     RECEIPT = 'receipt', 'Recibo'
     NO_DOCUMENT = 'no_document', 'Sem documento'
     OTHER = 'other', 'Outro'
@@ -633,8 +634,9 @@ class PurchasePayment(TimeStampedModel):
         )
 
 class PurchaseAttachmentType(models.TextChoices):
-    INVOICE = 'invoice', 'Nota fiscal'
-    FISCAL_RECEIPT = 'fiscal_receipt', 'Cupom fiscal'
+    INVOICE = 'invoice', 'NF-e ou nota fiscal'
+    NFCE = 'nfce', 'NFC-e (modelo 65)'
+    FISCAL_RECEIPT = 'fiscal_receipt', 'Cupom fiscal (ECF)'
     RECEIPT = 'receipt', 'Recibo'
     PAYMENT_PROOF = 'payment_proof', 'Comprovante de pagamento'
     OTHER = 'other', 'Outro'

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Item, ItemCategory, UnitOfMeasure
+from .models import Brand, Item, ItemCategory, UnitOfMeasure
 
 
 @admin.register(UnitOfMeasure)
@@ -23,11 +23,30 @@ class ItemCategoryAdmin(admin.ModelAdmin):
     list_filter = ('is_active',)
     search_fields = ('name', 'description')
 
+@admin.register(Brand)
+class BrandAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'is_active',
+    )
+    search_fields = (
+        'name',
+    )
+    list_filter = (
+        'is_active',
+    )
+    ordering = (
+        'name',
+    )
+    list_editable = (
+        'is_active',
+    )
 
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
     list_display = (
         'name',
+        'brand',
         'sku',
         'item_type',
         'category',
@@ -40,6 +59,7 @@ class ItemAdmin(admin.ModelAdmin):
     )
     list_filter = (
         'item_type',
+        'brand',
         'is_purchasable',
         'is_producible',
         'is_sellable',
@@ -51,4 +71,5 @@ class ItemAdmin(admin.ModelAdmin):
         'category',
         'base_unit',
         'net_content_unit',
+        'brand',
     )

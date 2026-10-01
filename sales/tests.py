@@ -37,12 +37,16 @@ from .services import (
     refund_sales_payment,
     register_sales_payment,
 )
-
+from finance.models import FinancialAccount
 
 class SalesServiceTests(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
             username='sales-test',
+        )
+        self.financial_account = FinancialAccount.objects.create(
+            code='SALES-TEST',
+            name='Conta de vendas para testes',
         )
         self.gram = UnitOfMeasure.objects.create(
             code='G',
@@ -118,6 +122,7 @@ class SalesServiceTests(TestCase):
     def create_payment(self, amount, fee='0.00'):
         return SalesOrderPayment.objects.create(
             sales_order=self.order,
+            financial_account=self.financial_account,
             amount=Decimal(amount),
             fee_amount=Decimal(fee),
             method=SalesPaymentMethod.PIX,

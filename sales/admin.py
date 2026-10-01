@@ -186,10 +186,14 @@ class SalesOrderPaymentInline(admin.TabularInline):
     extra = 1
     show_change_link = True
     can_delete = False
+    autocomplete_fields = (
+        'financial_account',
+    )
     fields = (
         'amount',
         'fee_amount',
         'method',
+        'financial_account',
         'due_date',
         'paid_at',
         'installment_number',
@@ -581,6 +585,7 @@ class SalesOrderPaymentAdmin(admin.ModelAdmin):
     )
     autocomplete_fields = (
         'sales_order',
+        'financial_account',
         'received_by',
     )
     list_select_related = (
@@ -662,6 +667,7 @@ class SalesOrderPaymentAdmin(admin.ModelAdmin):
             queryset,
             refund_sales_payment,
             'estornado(s) com sucesso.',
+            include_user=True,
         )
 
     @admin.action(description='Cancelar pagamentos selecionados')

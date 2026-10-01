@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import F, Q, Sum
 from django.utils import timezone
+from finance.services import post_sales_payment, reverse_sales_payment
 
 from inventory.models import (
     StockLocation,
@@ -480,17 +481,35 @@ def cancel_sales_order(
 
 
 def _locked_payment(payment):
-    if payment.pk is None:
+    if payment is None or payment.pk is None:
         raise ValidationError(
             'Salve o pagamento antes de executar esta operação.',
         )
 
-    return (
+    order_id = (
         SalesOrderPayment.objects
-        .select_for_update(of=('self',))
-        .select_related('sales_order')
+        .values_list('sales_order_id', flat=True)
         .get(pk=payment.pk)
     )
+    order = (
+        SalesOrder.objects
+        .select_for_update()
+        .get(pk=order_id)
+    )
+    locked_payment = (
+        SalesOrderPayment.objects
+        .select_for_update()
+        .get(pk=payment.pk)
+    )
+
+    if locked_payment.sales_order_id != order.pk:
+        raise ValidationError(
+            'O pedido deste pagamento foi alterado. '
+            'Atualize a página e tente novamente.',
+        )
+
+    locked_payment.sales_order = order
+    return locked_payment
 
 
 @transaction.atomic
@@ -505,6 +524,11 @@ def register_sales_payment(
     if payment.status != SalesPaymentStatus.PENDING:
         raise ValidationError(
             'Somente um pagamento pendente pode ser recebido.',
+        )
+
+    if payment.sales_order.status == SalesOrderStatus.CANCELLED:
+        raise ValidationError(
+            'Não é possível receber um pagamento de pedido cancelado.',
         )
 
     other_paid_total = (
@@ -530,11 +554,17 @@ def register_sales_payment(
     payment.full_clean()
     payment.save()
 
+    post_sales_payment(payment=payment, user=user)
     return payment
 
 
 @transaction.atomic
-def refund_sales_payment(*, payment):
+def refund_sales_payment(
+    *,
+    payment,
+    user=None,
+    refunded_on=None,
+):
     payment = _locked_payment(payment)
 
     if payment.status != SalesPaymentStatus.PAID:
@@ -546,6 +576,11 @@ def refund_sales_payment(*, payment):
     payment.full_clean()
     payment.save()
 
+    reverse_sales_payment(
+        payment=payment,
+        occurred_on=refunded_on or timezone.localdate(),
+        user=user,
+    )
     return payment
 
 
@@ -556,6 +591,12 @@ def cancel_sales_payment(*, payment):
     if payment.status != SalesPaymentStatus.PENDING:
         raise ValidationError(
             'Somente um pagamento pendente pode ser cancelado.',
+        )
+
+    if payment.financial_movements.exists():
+        raise ValidationError(
+            'Um pagamento com movimentações financeiras '
+            'não pode ser cancelado como pendente.',
         )
 
     payment.status = SalesPaymentStatus.CANCELLED

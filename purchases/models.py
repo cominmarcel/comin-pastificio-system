@@ -517,6 +517,30 @@ class PurchasePayment(TimeStampedModel):
         choices=FundingSource.choices,
         default=FundingSource.BUSINESS_FUNDS,
     )
+    financial_account = models.ForeignKey(
+        'finance.FinancialAccount',
+        verbose_name='conta de pagamento',
+        related_name='purchase_payments',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        help_text=(
+            'Conta utilizada quando o pagamento é feito '
+            'com recursos do Pastifício.'
+        ),
+    )
+    funded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name='recursos pessoais de',
+        related_name='purchase_payments_funded',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        help_text=(
+            'Pessoa que forneceu o dinheiro em um aporte '
+            'ou adiantamento pessoal.'
+        ),
+    )
     due_date = models.DateField(
         'data de vencimento',
         default=timezone.localdate,

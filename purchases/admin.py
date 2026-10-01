@@ -54,10 +54,16 @@ class PurchaseItemInline(admin.TabularInline):
 class PurchasePaymentInline(admin.TabularInline):
     model = PurchasePayment
     extra = 1
+    autocomplete_fields = (
+        'financial_account',
+        'funded_by',
+    )
     fields = (
         'amount',
         'method',
         'funding_source',
+        'financial_account',
+        'funded_by',
         'due_date',
         'payment_date',
         'installment_number',

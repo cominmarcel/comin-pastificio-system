@@ -968,6 +968,18 @@ class SalesOrderPayment(TimeStampedModel):
         max_length=20,
         choices=SalesPaymentMethod.choices,
     )
+    financial_account = models.ForeignKey(
+        'finance.FinancialAccount',
+        verbose_name='conta de recebimento',
+        related_name='sales_payments',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        help_text=(
+            'Conta em que o recebimento do Pastifício '
+            'será registrado.'
+        ),
+    )
     due_date = models.DateField(
         'data de vencimento',
         default=timezone.localdate,
